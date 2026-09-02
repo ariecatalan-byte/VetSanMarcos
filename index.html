@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VetCare | Registrar mascota</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-white border-bottom">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">VetCare</a>
+
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link active" href="index.html">Registrar</a>
+                <a class="nav-link" href="mascotas.html">Mascotas</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                <section class="mb-4 text-center">
+                    <span class="badge text-bg-primary mb-3">Clínica Veterinaria</span>
+                    <h1 class="display-6 fw-bold">Registrar mascota</h1>
+                    <p class="text-secondary">
+                        Ingresa los datos básicos de la mascota para incorporarla al registro.
+                    </p>
+                </section>
+
+                <section class="card shadow-sm border-0">
+                    <div class="card-body p-4 p-md-5">
+                        <form id="formMascota">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="nombre" class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" id="nombre" name="nombre">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="tipo" class="form-label">Tipo</label>
+                                    <select class="form-select" id="tipo" name="tipo">
+                                        <option value="Perro">Perro</option>
+                                        <option value="Gato">Gato</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="raza" class="form-label">Raza</label>
+                                    <input type="text" class="form-control" id="raza" name="raza">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="peso" class="form-label">Peso (kg)</label>
+                                    <input type="number" class="form-control" id="peso" name="peso" step="0.1">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="fechaNacimiento" class="form-label">Fecha de nacimiento</label>
+                                    <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="dueno" class="form-label">Nombre del dueño</label>
+                                    <input type="text" class="form-control" id="dueno" name="dueno">
+                                </div>
+
+                                <div class="col-12 d-grid mt-4">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        Registrar mascota
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div id="mensajeRegistro" class="alert alert-success mt-4 d-none" role="alert">
+                            Mascota registrada correctamente.
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-4 border-top bg-white">
+        <div class="container text-center text-secondary">
+            VetCare · Registro local de mascotas
+        </div>
+    </footer>
+</body>
+</html>

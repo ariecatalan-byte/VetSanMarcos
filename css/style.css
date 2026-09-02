@@ -1,0 +1,55 @@
+body {
+    background-color: #f7f9fc;
+    color: #212529;
+}
+
+.navbar-brand {
+    letter-spacing: -0.5px;
+}
+
+.card {
+    border-radius: 1rem;
+}
+
+.form-control,
+.form-select,
+.btn {
+    border-radius: 0.75rem;
+}
+
+.pet-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pet-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.08);
+}
+
+.detail-label {
+    margin-bottom: 0.25rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    margin-bottom: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.pet-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    display: block;
+    margin: auto;
+}
+
+.pet-img-detalle {
+    width: 128px;
+    height: 128px;
+    object-fit: cover;
+    border-radius: 50%;
+}

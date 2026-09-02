@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VetCare | Detalle mascota</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-white border-bottom">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">VetCare</a>
+
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="index.html">Registrar</a>
+                <a class="nav-link" href="mascotas.html">Mascotas</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <a href="mascotas.html" class="btn btn-outline-secondary mb-4">
+                    Volver
+                </a>
+
+                <section id="fichaMascota" class="card shadow-sm border-0 d-none">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <img id="imagenMascota" class="pet-img-detalle" src="img/perro.png" alt="Imagen de la mascota">
+
+                            <div>
+                                <span id="tipoMascota" class="badge text-bg-secondary"></span>
+                                <h1 id="nombreMascota" class="h2 mb-0"></h1>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <p class="detail-label">Raza</p>
+                                <p id="razaMascota" class="detail-value"></p>
+                            </div>
+
+                            <div class="col-md-6">
+                                <p class="detail-label">Peso</p>
+                                <p id="pesoMascota" class="detail-value"></p>
+                            </div>
+
+                            <div class="col-md-6">
+                                <p class="detail-label">Fecha de nacimiento</p>
+                                <p id="fechaMascota" class="detail-value"></p>
+                            </div>
+
+                            <div class="col-md-6">
+                                <p class="detail-label">Dueño</p>
+                                <p id="duenoMascota" class="detail-value"></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div id="mascotaNoEncontrada" class="alert alert-warning d-none">
+                    No se encontró la mascota solicitada.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-4 border-top bg-white">
+        <div class="container text-center text-secondary">
+            VetCare · Registro local de mascotas
+        </div>
+    </footer>
+</body>
+</html>
