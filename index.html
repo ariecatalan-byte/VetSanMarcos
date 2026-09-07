@@ -3,91 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VetCare | Registrar mascota</title>
+    <title>VetCare Store | Inicio</title>
+    <meta name="description" content="VetCare Store, tienda online de medicamentos, alimento y accesorios veterinarios.">
     <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-
 <body>
-    <nav class="navbar navbar-expand-lg bg-white border-bottom">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">VetCare</a>
 
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link active" href="index.html">Registrar</a>
-                <a class="nav-link" href="mascotas.html">Mascotas</a>
+    <!-- ===================== HEADER / NAVEGACIÓN ===================== -->
+    <header>
+        <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+            <div class="container">
+                <a class="navbar-brand fw-bold" href="index.html">Vet<span>Care</span> Store</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="menuPrincipal">
+                    <div class="navbar-nav mx-auto">
+                        <a class="nav-link active" href="index.html">Inicio</a>
+                        <a class="nav-link" href="catalogo.html">Productos</a>
+                        <a class="nav-link" href="index.html#quienes-somos">Quiénes somos</a>
+                        <a class="nav-link" href="index.html#contacto">Contáctanos</a>
+                    </div>
+                    <div class="navbar-nav align-items-lg-center" id="zonaSesion">
+                        <a class="nav-link" href="login.html">Ingresar</a>
+                    </div>
+                    <a href="carrito.html" class="btn btn-outline-primary ms-lg-3 mt-2 mt-lg-0 position-relative">
+                        🛒 Carrito
+                        <span id="contadorCarrito" class="badge bg-danger rounded-pill ms-1">0</span>
+                    </a>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
-    <main class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 col-xl-7">
-                <section class="mb-4 text-center">
-                    <span class="badge text-bg-primary mb-3">Clínica Veterinaria</span>
-                    <h1 class="display-6 fw-bold">Registrar mascota</h1>
-                    <p class="text-secondary">
-                        Ingresa los datos básicos de la mascota para incorporarla al registro.
-                    </p>
-                </section>
+    <main>
+        <!-- ===================== HERO / PRODUCTOS DESTACADOS ===================== -->
+        <section class="container py-5">
+            <div class="hero-section p-5 mb-5 text-center">
+                <span class="badge text-bg-light text-dark mb-3">Tienda online veterinaria</span>
+                <h1 class="display-5 fw-bold">Todo para el bienestar de tu mascota</h1>
+                <p class="lead mb-0">Medicamentos, alimento y accesorios con despacho a todo Chile.</p>
+                <a href="catalogo.html" class="btn btn-light btn-lg mt-3 fw-bold">Ver catálogo completo</a>
+            </div>
 
-                <section class="card shadow-sm border-0">
-                    <div class="card-body p-4 p-md-5">
-                        <form id="formMascota">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="nombre" class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" id="nombre" name="nombre">
-                                </div>
+            <h2 class="h4 fw-bold mb-4">Productos destacados</h2>
+            <div id="productosDestacados" class="row g-4">
+                <!-- Se rellena dinámicamente con JavaScript (index.js) -->
+            </div>
+        </section>
 
-                                <div class="col-md-6">
-                                    <label for="tipo" class="form-label">Tipo</label>
-                                    <select class="form-select" id="tipo" name="tipo">
-                                        <option value="Perro">Perro</option>
-                                        <option value="Gato">Gato</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="raza" class="form-label">Raza</label>
-                                    <input type="text" class="form-control" id="raza" name="raza">
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="peso" class="form-label">Peso (kg)</label>
-                                    <input type="number" class="form-control" id="peso" name="peso" step="0.1">
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="fechaNacimiento" class="form-label">Fecha de nacimiento</label>
-                                    <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento">
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="dueno" class="form-label">Nombre del dueño</label>
-                                    <input type="text" class="form-control" id="dueno" name="dueno">
-                                </div>
-
-                                <div class="col-12 d-grid mt-4">
-                                    <button type="submit" class="btn btn-primary btn-lg">
-                                        Registrar mascota
-                                    </button>
+        <!-- ===================== QUIÉNES SOMOS ===================== -->
+        <section id="quienes-somos" class="bg-white py-5">
+            <div class="container">
+                <div class="row align-items-center g-4">
+                    <div class="col-lg-6">
+                        <span class="badge text-bg-secondary mb-3">Nuestro equipo</span>
+                        <h2 class="fw-bold mb-3">Quiénes somos</h2>
+                        <p>
+                            VetCare Store nace como proyecto académico del equipo de la asignatura
+                            <strong>Desarrollo FullStack II (DSY1104)</strong> de Duoc UC, inspirado en la
+                            experiencia real de la Veterinaria San Marcos. Nuestro objetivo es acercar a
+                            los dueños de mascotas los medicamentos, alimentos y accesorios que
+                            habitualmente encuentran en la clínica veterinaria, ahora en una tienda online
+                            simple y rápida de usar.
+                        </p>
+                        <p>
+                            Creemos que cuidar a una mascota no debería significar perder tiempo
+                            buscando en distintas tiendas físicas: por eso reunimos en un solo lugar
+                            antibióticos y antiparasitarios de uso frecuente, alimento balanceado y
+                            accesorios básicos, con información clara de precio, categoría y
+                            disponibilidad de stock.
+                        </p>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="card border-0 shadow-sm p-4 text-center h-100">
+                                    <div class="display-6">🐾</div>
+                                    <p class="fw-bold mb-0 mt-2">+2.500 mascotas</p>
+                                    <p class="text-secondary small mb-0">atendidas cada año</p>
                                 </div>
                             </div>
-                        </form>
-
-                        <div id="mensajeRegistro" class="alert alert-success mt-4 d-none" role="alert">
-                            Mascota registrada correctamente.
+                            <div class="col-6">
+                                <div class="card border-0 shadow-sm p-4 text-center h-100">
+                                    <div class="display-6">👩‍⚕️</div>
+                                    <p class="fw-bold mb-0 mt-2">Equipo</p>
+                                    <p class="text-secondary small mb-0">DSY1104 · 2026</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </section>
+                </div>
             </div>
-        </div>
+        </section>
+
+        <!-- ===================== CONTACTO ===================== -->
+        <section id="contacto" class="py-5">
+            <div class="container">
+                <span class="badge text-bg-secondary mb-3">Estamos para ayudarte</span>
+                <h2 class="fw-bold mb-4">Contáctanos</h2>
+
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <iframe
+                            class="mapa-contacto"
+                            title="Ubicación VetCare Store"
+                            src="https://www.google.com/maps?q=Rancagua,Chile&output=embed"
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-body p-4">
+                                <form id="formContacto" novalidate>
+                                    <div class="mb-3">
+                                        <label for="nombreContacto" class="form-label">Nombre completo</label>
+                                        <input type="text" class="form-control" id="nombreContacto" maxlength="100" required>
+                                        <div class="mensaje-error d-none" id="errorNombreContacto"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="correoContacto" class="form-label">Correo electrónico</label>
+                                        <input type="email" class="form-control" id="correoContacto" maxlength="100">
+                                        <div class="mensaje-error d-none" id="errorCorreoContacto"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="mensajeContacto" class="form-label">Mensaje</label>
+                                        <textarea class="form-control" id="mensajeContacto" rows="4" maxlength="500" required></textarea>
+                                        <div class="mensaje-error d-none" id="errorMensajeContacto"></div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Enviar mensaje</button>
+                                </form>
+                                <div id="mensajeContactoOk" class="alert alert-success mt-3 d-none">
+                                    ¡Gracias! Tu mensaje fue registrado correctamente.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <footer class="py-4 border-top bg-white">
-        <div class="container text-center text-secondary">
-            VetCare · Registro local de mascotas
+    <!-- ===================== FOOTER ===================== -->
+    <footer class="py-4 border-top">
+        <div class="container text-center equipo-info">
+            <p class="mb-1"><strong>VetCare Store</strong> · Proyecto académico</p>
+            <p class="mb-1">Equipo: [Nombre del equipo] — Integrantes: AC y equipo del curso</p>
+            <p class="mb-0">Asignatura: DSY1104 – Desarrollo FullStack II — 2026</p>
         </div>
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/index.js"></script>
+    <script src="js/contacto.js"></script>
 </body>
 </html>
