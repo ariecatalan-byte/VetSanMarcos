@@ -1,7 +1,7 @@
 /**
  * storage.js
  * -----------------------------------------------------------------------
- * Capa de persistencia de VetCare Store usando LocalStorage.
+ * Capa de persistencia de Vet San Marcos usando LocalStorage.
  * Aquí NO se usa base de datos (según instrucciones EP1 DSY1104): toda la
  * información necesaria para el funcionamiento de la tienda (productos,
  * usuarios, sesión, carrito e intentos de login) se administra mediante

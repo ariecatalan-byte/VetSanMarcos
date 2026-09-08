@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     ficha.classList.remove("d-none");
-    document.title = "VetCare Store | " + producto.nombre;
+    document.title = "Vet San Marcos | " + producto.nombre;
 
     document.getElementById("imgProducto").src = producto.imagen;
     document.getElementById("imgProducto").alt = producto.nombre;
