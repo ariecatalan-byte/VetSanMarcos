@@ -23,10 +23,14 @@ document.addEventListener("DOMContentLoaded", function () {
         poblarSelectComunas(selectRegion, selectComuna);
     });
 
+    // Algunos campos tienen un id de HTML distinto al nombre usado en las validaciones
+    // (ej: el checkbox de condiciones se llama "aceptaCondiciones" en el HTML).
+    const CAMPOS_REALES = { condiciones: "aceptaCondiciones" };
+
     function mostrarError(idCampo, mensaje) {
-        const campo = document.getElementById(idCampo);
+        const campo = document.getElementById(CAMPOS_REALES[idCampo] || idCampo);
         const error = document.getElementById("error" + idCampo.charAt(0).toUpperCase() + idCampo.slice(1));
-        campo.classList.add("is-invalid");
+        if (campo) campo.classList.add("is-invalid");
         if (error) {
             error.textContent = mensaje;
             error.classList.remove("d-none");
@@ -34,9 +38,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function limpiarError(idCampo) {
-        const campo = document.getElementById(idCampo);
+        const campo = document.getElementById(CAMPOS_REALES[idCampo] || idCampo);
         const error = document.getElementById("error" + idCampo.charAt(0).toUpperCase() + idCampo.slice(1));
-        campo.classList.remove("is-invalid");
+        if (campo) campo.classList.remove("is-invalid");
         if (error) error.classList.add("d-none");
     }
 
