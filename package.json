@@ -1,0 +1,25 @@
+{
+  "name": "vet-san-marcos",
+  "private": true,
+  "version": "2.0.0",
+  "description": "Vet San Marcos - Evaluación Parcial 2 (DSY1104): tienda veterinaria en React + TypeScript + Vite + Bootstrap 5",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.6"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21"
+  }
+}

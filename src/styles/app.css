@@ -1,0 +1,58 @@
+/* ==========================================================================
+   Vet San Marcos - estilos propios (se cargan DESPUÉS de Bootstrap 5)
+   DSY1104 - Desarrollo FullStack II - Evaluación Parcial 2
+   ========================================================================== */
+:root {
+  --vc-primary: #2563eb;
+  --vc-primary-dark: #1e40af;
+  --vc-accent: #059669;
+  --vc-bg: #f7f9fc;
+  --vc-text: #212529;
+  --vc-muted: #6c757d;
+}
+
+body { background-color: var(--vc-bg); color: var(--vc-text); font-family: "Segoe UI", Arial, sans-serif; }
+
+.navbar-brand { letter-spacing: -0.5px; color: var(--vc-primary) !important; }
+.navbar-brand span { color: var(--vc-accent); }
+.navbar .nav-link.active { font-weight: 600; color: var(--vc-primary) !important; }
+
+.card { border-radius: 1rem; }
+.form-control, .form-select, .btn { border-radius: 0.75rem; }
+.btn-primary { background-color: var(--vc-primary); border-color: var(--vc-primary); }
+.btn-primary:hover { background-color: var(--vc-primary-dark); border-color: var(--vc-primary-dark); }
+
+.hero-section { background: linear-gradient(135deg, var(--vc-primary) 0%, var(--vc-accent) 100%); color: #fff; border-radius: 1.5rem; }
+
+.producto-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.producto-card:hover { transform: translateY(-4px); box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.08) !important; }
+.producto-img { width: 100%; height: 180px; object-fit: cover; border-top-left-radius: 1rem; border-top-right-radius: 1rem; }
+.producto-precio { font-weight: 700; color: var(--vc-primary-dark); }
+
+.stock-bajo { color: #b91c1c; font-weight: 600; }
+.stock-agotado { color: #b91c1c; font-weight: 700; }
+
+.detalle-img { width: 100%; max-height: 380px; object-fit: contain; background-color: #fff; border-radius: 1rem; }
+.carrito-item-img { width: 64px; height: 64px; object-fit: cover; border-radius: 0.75rem; }
+.mapa-contacto { width: 100%; height: 320px; border: 0; border-radius: 1rem; }
+
+footer { background-color: #fff; }
+footer .equipo-info { font-size: 0.9rem; color: var(--vc-muted); }
+
+.mensaje-error { color: #b91c1c; font-size: 0.85rem; margin-top: 0.25rem; }
+
+.avatar-generico {
+  display: inline-flex; align-items: center; justify-content: center; border-radius: 50%;
+  background: linear-gradient(135deg, var(--vc-primary), var(--vc-accent)); color: #fff; font-weight: 700;
+}
+
+/* Panel de gestión */
+.nav-pills .nav-link { color: var(--vc-text); border-radius: 0.75rem; }
+.nav-pills .nav-link.active { background-color: var(--vc-primary); color: #fff; }
+
+/* Al imprimir la boleta se ocultan menús y botones */
+@media print {
+  .no-imprimir { display: none !important; }
+  body { background: #fff; }
+  .card { box-shadow: none !important; border: 0 !important; }
+}
