@@ -5,10 +5,10 @@ import { SeccionNosotros } from "../../components/secciones/SeccionNosotros";
 import { SeccionVideo } from "../../components/secciones/SeccionVideo";
 import { useDatos } from "../../context/DatosContext";
 
-/** Página principal: hero, productos destacados (los 3 con más stock), video, quiénes somos y contacto. */
+/** Página principal: hero, productos destacados (los 4 con más stock), video, quiénes somos y contacto. */
 export function Home() {
   const { productos, categorias } = useDatos();
-  const destacados = [...productos].sort((a, b) => b.stock - a.stock).slice(0, 3);
+  const destacados = [...productos].sort((a, b) => b.stock - a.stock).slice(0, 4);
 
   return (
     <>

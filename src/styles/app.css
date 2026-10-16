@@ -16,9 +16,17 @@ body { background-color: var(--vc-bg); color: var(--vc-text); font-family: "Sego
 .navbar-brand { letter-spacing: -0.5px; color: var(--vc-primary) !important; }
 .navbar-brand span { color: var(--vc-accent); }
 .navbar .nav-link.active { font-weight: 600; color: var(--vc-primary) !important; }
+.navbar { padding-top: 0.35rem; padding-bottom: 0.35rem; }
+.navbar .nav-link { padding-top: 0.4rem; padding-bottom: 0.4rem; }
 
 .card { border-radius: 1rem; }
 .form-control, .form-select, .btn { border-radius: 0.75rem; }
+.form-control:focus, .form-select:focus {
+  background-color: #eff6ff;
+  border-color: var(--vc-primary);
+  box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25);
+  color: var(--vc-text);
+}
 .btn-primary { background-color: var(--vc-primary); border-color: var(--vc-primary); }
 .btn-primary:hover { background-color: var(--vc-primary-dark); border-color: var(--vc-primary-dark); }
 
