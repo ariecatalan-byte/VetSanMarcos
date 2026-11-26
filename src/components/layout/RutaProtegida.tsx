@@ -3,8 +3,10 @@
  * -----------------------------------------------------------------------
  * Guardia de rutas: envuelve una página y solo la muestra si el usuario
  * tiene sesión y (opcionalmente) el permiso requerido por su rol.
- *  - Sin sesión → redirige a /login.
- *  - Con sesión pero sin permiso → muestra "Acceso denegado".
+ *  - Mientras se restaura la sesión (recarga de página) → muestra un spinner.
+ *  - Sin sesión → redirige a /login (y vuelve a la página pedida tras iniciar sesión).
+ *  - Con sesión pero sin permiso → muestra "Acceso denegado" (también al escribir la URL a mano).
+ * Importante: esto protege la INTERFAZ; el backend valida los permisos de nuevo en cada endpoint.
  * -----------------------------------------------------------------------
  */
 import type { ReactNode } from "react";
@@ -18,8 +20,17 @@ interface Props {
 }
 
 export function RutaProtegida({ permiso, children }: Props) {
-  const { usuario } = useAuth();
+  const { usuario, cargandoSesion } = useAuth();
   const ubicacion = useLocation();
+
+  if (cargandoSesion) {
+    return (
+      <div className="text-center py-5" role="status">
+        <div className="spinner-border text-primary" aria-hidden="true" />
+        <div className="text-secondary mt-2">Verificando sesión…</div>
+      </div>
+    );
+  }
 
   if (usuario === null) return <Navigate to="/login" replace state={{ desde: ubicacion.pathname }} />;
 

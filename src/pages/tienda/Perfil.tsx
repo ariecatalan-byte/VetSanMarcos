@@ -1,24 +1,25 @@
 /**
- * pages/tienda/Perfil.tsx — Perfil personal (TODOS los roles).
- * Permite consultar y editar nombre completo, fecha de nacimiento (con la
- * edad derivada), correo, dirección y región/comuna. Muestra el rol pero
- * no permite modificarlo. Incluye el historial de compras del usuario.
+ * pages/tienda/Perfil.tsx — Perfil personal (TODOS los roles) + HISTORIAL del cliente.
+ * Permite consultar y editar los datos personales (PUT /usuarios/me). Muestra el rol pero no permite
+ * modificarlo. El historial se pide al backend (GET /ordenes/mis): solo trae las operaciones del
+ * usuario autenticado y se conserva aunque cierre sesión o cambie de dispositivo.
  */
+import { ordenesApi } from "../../api/ordenes";
 import { Avatar } from "../../components/comunes/Avatar";
 import { BadgeRol } from "../../components/comunes/Insignias";
 import { EncabezadoPagina } from "../../components/comunes/EncabezadoPagina";
+import { EstadoCarga } from "../../components/comunes/EstadoCarga";
 import { FormUsuario } from "../../components/formularios/FormUsuario";
 import { TablaOrdenes } from "../../components/ordenes/TablaOrdenes";
 import { useAuth } from "../../context/AuthContext";
-import { useDatos } from "../../context/DatosContext";
+import { useCarga } from "../../hooks/useCarga";
+import { rutaBoletaCliente } from "../../utils/ordenes";
 import { calcularEdad } from "../../utils/validaciones";
 
 export function Perfil() {
-  const { usuario, usuarios, actualizarPerfil } = useAuth();
-  const { ordenes } = useDatos();
+  const { usuario, actualizarPerfil } = useAuth();
+  const historial = useCarga(() => ordenesApi.mias(), [usuario?.id]);
   if (usuario === null) return null; // la ruta ya está protegida; esto solo satisface a TypeScript
-
-  const misOrdenes = ordenes.filter((o) => o.usuarioId === usuario.id);
 
   return (
     <div className="container py-5">
@@ -37,7 +38,7 @@ export function Perfil() {
           <div className="card border-0 shadow-sm">
             <div className="card-body p-4">
               {/* key: si cambia el usuario, el formulario se reinicia con sus datos */}
-              <FormUsuario key={usuario.id} modo="perfil" usuarioInicial={usuario} usuarios={usuarios} textoBoton="Guardar cambios"
+              <FormUsuario key={usuario.id} modo="perfil" usuarioInicial={usuario} textoBoton="Guardar cambios"
                 onGuardar={(d) =>
                   actualizarPerfil({
                     nombre: d.nombre.trim(), apellido: d.apellido.trim(), fechaNacimiento: d.fechaNacimiento,
@@ -50,8 +51,9 @@ export function Perfil() {
       </div>
 
       <h2 className="h4 fw-bold mt-5 mb-3">Mis compras</h2>
-      <TablaOrdenes ordenes={misOrdenes} mensajeVacio="Aún no has realizado compras."
-        rutaDetalle={(o) => (o.estado === "pagada" ? `/compra/exitosa/${o.id}` : `/compra/error/${o.id}`)} />
+      <EstadoCarga cargando={historial.cargando} error={historial.error} onReintentar={historial.recargar}>
+        <TablaOrdenes ordenes={historial.datos ?? []} mensajeVacio="Aún no has realizado compras." rutaDetalle={rutaBoletaCliente} />
+      </EstadoCarga>
     </div>
   );
 }

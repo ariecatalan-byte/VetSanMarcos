@@ -16,6 +16,7 @@ interface Props {
  * Es un componente "controlado": no guarda estado propio, lo recibe y lo devuelve por props.
  */
 export function FiltrosProductos({ filtros, onCambio, categorias, precioMaximoCatalogo, mostrarCategoria = true }: Props) {
+  const precioActual = filtros.precioMax ?? precioMaximoCatalogo;
   return (
     <section className="card border-0 shadow-sm mb-4">
       <div className="card-body p-4">
@@ -28,8 +29,8 @@ export function FiltrosProductos({ filtros, onCambio, categorias, precioMaximoCa
             </div>
           )}
           <div className="col-12 col-md-4">
-            <CampoInput id="filtroPrecioMax" tipo="range" etiqueta={`Precio máximo: ${formatearCLP(filtros.precioMax)}`} min={0} max={precioMaximoCatalogo}
-              step={500} valor={String(filtros.precioMax)} onCambio={(v) => onCambio({ ...filtros, precioMax: Number(v) })} />
+            <CampoInput id="filtroPrecioMax" tipo="range" etiqueta={`Precio máximo: ${formatearCLP(precioActual)}`} min={0} max={precioMaximoCatalogo}
+              step={500} valor={String(precioActual)} onCambio={(v) => onCambio({ ...filtros, precioMax: Number(v) })} />
           </div>
           <div className={mostrarCategoria ? "col-8 col-md-3" : "col-8 col-md-6"}>
             <CampoInput id="buscador" etiqueta="Buscar por nombre" placeholder="Ej: Bravecto" valor={filtros.texto}
@@ -37,7 +38,7 @@ export function FiltrosProductos({ filtros, onCambio, categorias, precioMaximoCa
           </div>
           <div className="col-4 col-md-1 d-grid">
             <button type="button" className="btn btn-outline-secondary"
-              onClick={() => onCambio({ categoriaId: "todas", precioMax: precioMaximoCatalogo, texto: "" })}>
+              onClick={() => onCambio({ categoriaId: "todas", precioMax: null, texto: "" })}>
               Limpiar
             </button>
           </div>

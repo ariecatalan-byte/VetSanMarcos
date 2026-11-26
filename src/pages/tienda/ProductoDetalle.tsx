@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Alerta } from "../../components/comunes/Alerta";
+import { EstadoCarga } from "../../components/comunes/EstadoCarga";
 import { ImagenProducto } from "../../components/comunes/ImagenProducto";
 import { PrecioProducto } from "../../components/productos/PrecioProducto";
 import { useCarrito } from "../../context/CarritoContext";
@@ -10,12 +11,14 @@ import type { Resultado } from "../../types";
 /** Detalle de producto: ficha completa con control de stock y selector de cantidad. */
 export function ProductoDetalle() {
   const { id } = useParams<{ id: string }>();
-  const { productos, categorias } = useDatos();
+  const { productos, categorias, cargando } = useDatos();
   const { agregar } = useCarrito();
   const [cantidad, setCantidad] = useState("1");
   const [resultado, setResultado] = useState<Resultado | null>(null);
 
   const producto = productos.find((p) => p.id === id);
+
+  if (cargando) return <div className="container py-5"><EstadoCarga cargando error="">{null}</EstadoCarga></div>;
 
   if (producto === undefined) {
     return (

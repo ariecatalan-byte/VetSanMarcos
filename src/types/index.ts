@@ -2,7 +2,7 @@
  * types/index.ts
  * -----------------------------------------------------------------------
  * Tipos e interfaces de TODO el dominio de la tienda. Se usan para:
- *  - tipar los datos guardados en LocalStorage (data/),
+ *  - tipar las respuestas y peticiones de la API REST (api/),
  *  - tipar las props de los componentes,
  *  - tipar los estados (useState) y los valores de los contextos.
  * -----------------------------------------------------------------------
@@ -20,15 +20,18 @@ export interface Usuario {
   fechaNacimiento: string; // formato AAAA-MM-DD (input type="date")
   genero: Genero;
   correo: string;
-  password: string; // simulación académica: en un sistema real NUNCA se guarda en texto plano
   direccion: string;
   region: string;
   comuna: string;
   rol: Rol;
+  /** Bloqueada por 3 intentos fallidos (la desbloquea un administrador). */
+  bloqueado: boolean;
+  /** false = cuenta desactivada (tiene compras, por eso no se borró). */
+  activo: boolean;
 }
 
-/** Usuario antes de recibir su id (lo asigna la capa de datos). */
-export type NuevoUsuario = Omit<Usuario, "id">;
+/** Datos para crear/registrar un usuario. La contraseña SOLO viaja al servidor; la API nunca la devuelve. */
+export type NuevoUsuario = Omit<Usuario, "id" | "bloqueado" | "activo"> & { password: string };
 
 export interface Categoria {
   id: string;
@@ -88,14 +91,15 @@ export interface DireccionEntrega {
   indicaciones: string;
 }
 
-export type EstadoOrden = "pagada" | "rechazada";
+/** pagada → enviada → entregada; pagada/enviada → cancelada; rechazada es terminal. */
+export type EstadoOrden = "pagada" | "enviada" | "entregada" | "cancelada" | "rechazada";
 
 export interface Orden {
   id: string;
   numero: number; // número visible de boleta
   fecha: string; // ISO
   estado: EstadoOrden;
-  usuarioId: string | null; // null si compró sin iniciar sesión
+  usuarioId: string; // toda compra pertenece a un usuario autenticado
   cliente: DatosCliente;
   entrega: DireccionEntrega;
   lineas: LineaOrden[];
@@ -113,6 +117,25 @@ export interface EntradaBlog {
   resumen: string;
   fecha: string;
   contenido: string[]; // párrafos
+}
+
+/** Resumen del dashboard administrativo (calculado por el backend con datos reales de la base de datos). */
+export type PeriodoReporte = "semana" | "mes" | "anio" | "todo";
+
+export interface ReporteResumen {
+  periodo: PeriodoReporte;
+  totalOperaciones: number;
+  operacionesPagadas: number;
+  operacionesRechazadas: number;
+  operacionesCanceladas: number;
+  montoTotal: number;
+  unidadesVendidas: number;
+  ticketPromedio: number;
+  topProductos: { idProducto: string; nombre: string; unidades: number; ingresos: number }[];
+  ventasPorCategoria: { categoria: string; monto: number }[];
+  serie: { etiqueta: string; operaciones: number; monto: number }[];
+  inventario: { totalProductos: number; stockCritico: number; enOferta: number };
+  totalUsuarios: number;
 }
 
 /** Resultado estándar de las operaciones de datos: éxito/fracaso + mensaje para el usuario. */

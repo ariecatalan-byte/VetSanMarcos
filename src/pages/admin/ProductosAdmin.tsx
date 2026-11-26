@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import { StockEditor } from "../../components/admin/StockEditor";
 import { Alerta } from "../../components/comunes/Alerta";
 import { CampoInput, CampoSelect } from "../../components/comunes/Campos";
+import { EstadoCarga } from "../../components/comunes/EstadoCarga";
 import { EncabezadoPagina } from "../../components/comunes/EncabezadoPagina";
 import { ImagenProducto } from "../../components/comunes/ImagenProducto";
 import { useAuth } from "../../context/AuthContext";
@@ -20,7 +21,7 @@ import { esStockCritico } from "../../utils/productos";
 
 export function ProductosAdmin() {
   const { usuario } = useAuth();
-  const { productos, categorias, cambiarStock, eliminarProducto } = useDatos();
+  const { productos, categorias, cargando, error, recargar, cambiarStock, eliminarProducto } = useDatos();
   const rol = usuario?.rol;
   const [texto, setTexto] = useState("");
   const [categoriaId, setCategoriaId] = useState("");
@@ -30,8 +31,8 @@ export function ProductosAdmin() {
     (p) => (categoriaId === "" || p.categoriaId === categoriaId) && p.nombre.toLowerCase().includes(texto.trim().toLowerCase()),
   );
 
-  function eliminar(id: string, nombre: string) {
-    if (window.confirm(`¿Eliminar el producto "${nombre}"? Esta acción no se puede deshacer.`)) setAviso(eliminarProducto(id));
+  async function eliminar(id: string, nombre: string) {
+    if (window.confirm(`¿Eliminar el producto "${nombre}"? Si ya fue vendido quedará desactivado para conservar el historial de compras.`)) setAviso(await eliminarProducto(id));
   }
 
   return (
@@ -55,6 +56,7 @@ export function ProductosAdmin() {
         <div className="col-md-2 d-flex align-items-end"><button type="button" className="btn btn-outline-secondary w-100" onClick={() => { setTexto(""); setCategoriaId(""); }}>Limpiar</button></div>
       </div>
 
+      <EstadoCarga cargando={cargando} error={error} onReintentar={() => void recargar()}>
       <div className="table-responsive">
         <table className="table table-hover align-middle bg-white">
           <thead><tr><th>Imagen</th><th>Producto</th><th>Categoría</th><th className="text-end">Precio</th><th>Stock</th><th /></tr></thead>
@@ -74,7 +76,7 @@ export function ProductosAdmin() {
                 <td><StockEditor key={p.id} producto={p} onGuardar={cambiarStock} /></td>
                 <td className="text-end text-nowrap">
                   {puede(rol, "productos:editar") && <Link to={`/admin/productos/${p.id}/editar`} className="btn btn-sm btn-outline-primary me-1">Editar</Link>}
-                  {puede(rol, "productos:eliminar") && <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => eliminar(p.id, p.nombre)}>Eliminar</button>}
+                  {puede(rol, "productos:eliminar") && <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => void eliminar(p.id, p.nombre)}>Eliminar</button>}
                 </td>
               </tr>
             ))}
@@ -82,6 +84,7 @@ export function ProductosAdmin() {
         </table>
       </div>
       {filtrados.length === 0 && <Alerta tipo="warning">No hay productos que coincidan.</Alerta>}
+      </EstadoCarga>
     </>
   );
 }

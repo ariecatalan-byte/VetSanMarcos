@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { EncabezadoPagina } from "../../components/comunes/EncabezadoPagina";
+import { reportesApi } from "../../api/ordenes";
 import { useAuth } from "../../context/AuthContext";
 import { useDatos } from "../../context/DatosContext";
+import { useCarga } from "../../hooks/useCarga";
 import { formatearCLP } from "../../utils/formato";
 import { puede, type Accion } from "../../utils/permisos";
 import { esStockCritico } from "../../utils/productos";
@@ -26,26 +28,28 @@ const ATAJOS: Atajo[] = [
 
 /** Dashboard: tarjetas de resumen (según el rol) y accesos directos a las secciones permitidas. */
 export function Dashboard() {
-  const { usuario, usuarios } = useAuth();
-  const { productos, ordenes } = useDatos();
+  const { usuario } = useAuth();
+  const { productos } = useDatos();
   const rol = usuario?.rol;
-  const pagadas = ordenes.filter((o) => o.estado === "pagada");
+  // Los indicadores de ventas y usuarios los calcula el backend (solo administrador).
+  const { datos: resumen, error } = useCarga(() => (puede(rol, "reportes:ver") ? reportesApi.resumen("todo") : Promise.resolve(null)), [rol]);
   const criticos = productos.filter(esStockCritico).length;
 
   return (
     <>
       <EncabezadoPagina titulo="Dashboard" descripcion={`Resumen de actividades. Bienvenido/a, ${usuario?.nombre ?? ""}.`} />
+      {error && <div className="alert alert-danger">{error}</div>}
       <div className="row g-3 mb-4">
         {puede(rol, "ordenes:ver") && (
-          <div className="col-12 col-md-6 col-xl-3"><div className="card text-bg-primary border-0 p-3"><div className="small">Compras pagadas</div><div className="fs-2 fw-bold">{pagadas.length}</div></div></div>
+          <div className="col-12 col-md-6 col-xl-3"><div className="card text-bg-primary border-0 p-3"><div className="small">Compras pagadas</div><div className="fs-2 fw-bold">{resumen?.operacionesPagadas ?? "…"}</div></div></div>
         )}
         <div className="col-12 col-md-6 col-xl-3"><div className="card text-bg-success border-0 p-3"><div className="small">Productos</div><div className="fs-2 fw-bold">{productos.length}</div></div></div>
         <div className="col-12 col-md-6 col-xl-3"><div className="card text-bg-danger border-0 p-3"><div className="small">Productos con stock crítico</div><div className="fs-2 fw-bold">{criticos}</div></div></div>
         {puede(rol, "usuarios:listar") && (
-          <div className="col-12 col-md-6 col-xl-3"><div className="card text-bg-warning border-0 p-3"><div className="small">Usuarios</div><div className="fs-2 fw-bold">{usuarios.length}</div></div></div>
+          <div className="col-12 col-md-6 col-xl-3"><div className="card text-bg-warning border-0 p-3"><div className="small">Usuarios</div><div className="fs-2 fw-bold">{resumen?.totalUsuarios ?? "…"}</div></div></div>
         )}
         {puede(rol, "reportes:ver") && (
-          <div className="col-12"><div className="card border-0 shadow-sm p-3"><span className="text-secondary small">Ventas totales</span><span className="fs-3 fw-bold">{formatearCLP(pagadas.reduce((s, o) => s + o.total, 0))}</span></div></div>
+          <div className="col-12"><div className="card border-0 shadow-sm p-3"><span className="text-secondary small">Ventas totales</span><span className="fs-3 fw-bold">{resumen ? formatearCLP(resumen.montoTotal) : "…"}</span></div></div>
         )}
       </div>
 

@@ -9,7 +9,7 @@ interface Props {
   categoriaInicial?: Categoria;
   /** Categorías existentes, para impedir nombres repetidos. */
   categorias: Categoria[];
-  onGuardar: (datos: DatosFormCategoria) => Resultado;
+  onGuardar: (datos: DatosFormCategoria) => Promise<Resultado>;
   onCancelar?: () => void;
 }
 
@@ -20,11 +20,14 @@ export function FormCategoria({ categoriaInicial, categorias, onGuardar, onCance
   const form = useFormulario<DatosFormCategoria>(inicial, (v) => validarCategoria(v, nombresEnUso));
   const { valores, cambiar, errorDe } = form;
   const [resultado, setResultado] = useState<Resultado | null>(null);
+  const [enviando, setEnviando] = useState(false);
 
-  function alEnviar(e: React.FormEvent) {
+  async function alEnviar(e: React.FormEvent) {
     e.preventDefault();
     if (!form.intentarEnvio()) return;
-    const respuesta = onGuardar({ nombre: valores.nombre.trim(), descripcion: valores.descripcion.trim() });
+    setEnviando(true);
+    const respuesta = await onGuardar({ nombre: valores.nombre.trim(), descripcion: valores.descripcion.trim() });
+    setEnviando(false);
     setResultado(respuesta);
     if (respuesta.ok && categoriaInicial === undefined) form.reiniciar({ nombre: "", descripcion: "" });
   }
@@ -40,7 +43,7 @@ export function FormCategoria({ categoriaInicial, categorias, onGuardar, onCance
             onCambio={(v) => cambiar("descripcion", v)} />
         </div>
         <div className="col-md-3 d-flex align-items-end gap-2">
-          <button type="submit" className="btn btn-primary">{categoriaInicial ? "Guardar cambios" : "Crear categoría"}</button>
+          <button type="submit" className="btn btn-primary" disabled={enviando}>{categoriaInicial ? "Guardar cambios" : "Crear categoría"}</button>
           {onCancelar && <button type="button" className="btn btn-outline-secondary" onClick={onCancelar}>Cancelar</button>}
         </div>
       </div>

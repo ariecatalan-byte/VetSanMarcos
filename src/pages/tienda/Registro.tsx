@@ -3,9 +3,9 @@ import { FormUsuario } from "../../components/formularios/FormUsuario";
 import { useAuth } from "../../context/AuthContext";
 import { aNuevoUsuario } from "../../utils/usuarios";
 
-/** Registro público: crea EXCLUSIVAMENTE cuentas de cliente (el rol no se puede elegir). */
+/** Registro público: crea EXCLUSIVAMENTE cuentas de cliente (el rol no se puede elegir; el servidor también lo fuerza). */
 export function Registro() {
-  const { usuarios, registrarCliente } = useAuth();
+  const { registrarCliente } = useAuth();
   const navegar = useNavigate();
   return (
     <div className="container py-5">
@@ -18,7 +18,7 @@ export function Registro() {
           </section>
           <section className="card shadow-sm border-0">
             <div className="card-body p-4 p-md-5">
-              <FormUsuario modo="registro" usuarios={usuarios} textoBoton="Crear cuenta"
+              <FormUsuario modo="registro" textoBoton="Crear cuenta"
                 onGuardar={(datos) => registrarCliente(aNuevoUsuario(datos))}
                 onExito={() => setTimeout(() => navegar("/login"), 1500)} />
               <p className="text-center mt-3 mb-0">¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link></p>

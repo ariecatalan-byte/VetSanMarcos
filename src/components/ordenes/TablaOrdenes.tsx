@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import type { Orden } from "../../types";
 import { formatearCLP, formatearFecha } from "../../utils/formato";
 import { Alerta } from "../comunes/Alerta";
+import { BadgeEstado } from "../comunes/Insignias";
 
 interface Props {
   ordenes: Orden[];
@@ -26,7 +27,7 @@ export function TablaOrdenes({ ordenes, rutaDetalle, mensajeVacio = "Aún no hay
               <td>#{o.numero}</td>
               <td>{formatearFecha(o.fecha)}</td>
               <td>{o.cliente.nombre} {o.cliente.apellidos}</td>
-              <td><span className={`badge text-bg-${o.estado === "pagada" ? "success" : "danger"}`}>{o.estado === "pagada" ? "Pagada" : "Rechazada"}</span></td>
+              <td><BadgeEstado estado={o.estado} /></td>
               <td className="text-end">{formatearCLP(o.total)}</td>
               <td className="text-end"><Link to={rutaDetalle(o)} className="btn btn-sm btn-outline-primary">Ver boleta</Link></td>
             </tr>

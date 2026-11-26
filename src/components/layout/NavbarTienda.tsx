@@ -16,10 +16,8 @@ const ENLACES = [
   { a: "/", etiqueta: "Inicio", fin: true },
   { a: "/productos", etiqueta: "Productos" },
   { a: "/categorias", etiqueta: "Categorías" },
-  { a: "/ofertas", etiqueta: "Ofertas" },
   { a: "/nosotros", etiqueta: "Nosotros" },
   { a: "/blog", etiqueta: "Blog" },
-  { a: "/contacto", etiqueta: "Contacto" },
 ];
 
 export function NavbarTienda() {
@@ -35,7 +33,7 @@ export function NavbarTienda() {
   };
 
   function salir() {
-    cerrarSesion();
+    void cerrarSesion();
     cerrarMenus();
     navegar("/");
   }

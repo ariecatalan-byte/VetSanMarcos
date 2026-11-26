@@ -26,10 +26,10 @@ interface Props {
   usuarioInicial?: Usuario;
   /** Roles que se pueden elegir en el select (vacío = no se muestra el select). */
   rolesDisponibles?: Rol[];
-  /** Todos los usuarios, para detectar correos repetidos. */
-  usuarios: Usuario[];
+  /** Usuarios ya cargados (solo el panel admin los tiene), para avisar correos repetidos al escribir. El servidor valida siempre. */
+  usuarios?: Usuario[];
   textoBoton: string;
-  onGuardar: (datos: DatosFormUsuario) => Resultado;
+  onGuardar: (datos: DatosFormUsuario) => Promise<Resultado>;
   /** Se ejecuta tras un guardado exitoso (ej: redirigir). */
   onExito?: () => void;
   /** Si es true, el rol del usuario editado no se puede cambiar (edición de uno mismo). */
@@ -54,7 +54,7 @@ function valoresIniciales(usuario: Usuario | undefined, rolPorDefecto: Rol): Dat
 }
 
 export function FormUsuario({
-  modo, usuarioInicial, rolesDisponibles = [], usuarios, textoBoton, onGuardar, onExito, rolBloqueado = false,
+  modo, usuarioInicial, rolesDisponibles = [], usuarios = [], textoBoton, onGuardar, onExito, rolBloqueado = false,
 }: Props) {
   const rolPorDefecto: Rol = rolesDisponibles.includes("cliente") || rolesDisponibles.length === 0 ? "cliente" : rolesDisponibles[0];
   const correosEnUso = usuarios
@@ -67,18 +67,21 @@ export function FormUsuario({
   );
   const { valores, cambiar, errorDe } = form;
   const [resultado, setResultado] = useState<Resultado | null>(null);
+  const [enviando, setEnviando] = useState(false);
 
   const pideContrasena = modo !== "perfil";
   const edad = calcularEdad(valores.fechaNacimiento);
 
-  function alEnviar(e: React.FormEvent) {
+  async function alEnviar(e: React.FormEvent) {
     e.preventDefault();
     setResultado(null);
     if (!form.intentarEnvio()) {
       setResultado({ ok: false, mensaje: "Revisa los campos marcados en rojo antes de continuar." });
       return;
     }
-    const respuesta = onGuardar(valores);
+    setEnviando(true);
+    const respuesta = await onGuardar(valores);
+    setEnviando(false);
     setResultado(respuesta);
     if (respuesta.ok) {
       // Al crear/registrar se limpia el formulario; al editar se conservan los valores.
@@ -164,7 +167,7 @@ export function FormUsuario({
         )}
 
         <div className="col-12 d-grid mt-2">
-          <button type="submit" className="btn btn-primary btn-lg">{textoBoton}</button>
+          <button type="submit" className="btn btn-primary btn-lg" disabled={enviando}>{enviando ? "Guardando…" : textoBoton}</button>
         </div>
       </div>
 

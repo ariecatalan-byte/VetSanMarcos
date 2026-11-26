@@ -15,7 +15,7 @@ interface Props {
   productoInicial?: Producto;
   categorias: Categoria[];
   textoBoton: string;
-  onGuardar: (datos: NuevoProducto) => Resultado;
+  onGuardar: (datos: NuevoProducto) => Promise<Resultado>;
   onExito?: () => void;
 }
 
@@ -37,15 +37,17 @@ export function FormProducto({ productoInicial, categorias, textoBoton, onGuarda
   const form = useFormulario<DatosFormProducto>(aValores(productoInicial), validarProducto);
   const { valores, cambiar, errorDe } = form;
   const [resultado, setResultado] = useState<Resultado | null>(null);
+  const [enviando, setEnviando] = useState(false);
 
-  function alEnviar(e: React.FormEvent) {
+  async function alEnviar(e: React.FormEvent) {
     e.preventDefault();
     setResultado(null);
     if (!form.intentarEnvio()) {
       setResultado({ ok: false, mensaje: "Revisa los campos marcados en rojo antes de continuar." });
       return;
     }
-    const respuesta = onGuardar({
+    setEnviando(true);
+    const respuesta = await onGuardar({
       nombre: valores.nombre.trim(),
       categoriaId: valores.categoriaId,
       especie: valores.especie.trim(),
@@ -56,6 +58,7 @@ export function FormProducto({ productoInicial, categorias, textoBoton, onGuarda
       descripcion: valores.descripcion.trim(),
       imagen: valores.imagen.trim(),
     });
+    setEnviando(false);
     setResultado(respuesta);
     if (respuesta.ok) {
       if (productoInicial === undefined) form.reiniciar(aValores());
@@ -99,7 +102,7 @@ export function FormProducto({ productoInicial, categorias, textoBoton, onGuarda
             error={errorDe("descripcion")} onCambio={(v) => cambiar("descripcion", v)} />
         </div>
         <div className="col-12 d-grid d-md-block">
-          <button type="submit" className="btn btn-primary">{textoBoton}</button>
+          <button type="submit" className="btn btn-primary" disabled={enviando}>{enviando ? "Guardando…" : textoBoton}</button>
         </div>
       </div>
       {resultado && <Alerta tipo={resultado.ok ? "success" : "danger"} className="mt-3 mb-0">{resultado.mensaje}</Alerta>}

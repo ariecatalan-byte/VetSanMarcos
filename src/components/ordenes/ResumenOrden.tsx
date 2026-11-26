@@ -47,7 +47,7 @@ export function ResumenOrden({ orden }: { orden: Orden }) {
       </div>
 
       <div className="card bg-light border-0 text-center p-3">
-        <span className="fs-5 fw-bold">{orden.estado === "pagada" ? "Total pagado" : "Total a pagar"}: {formatearCLP(orden.total)}</span>
+        <span className="fs-5 fw-bold">{orden.estado === "rechazada" ? "Total a pagar" : "Total pagado"}: {formatearCLP(orden.total)}</span>
       </div>
     </div>
   );

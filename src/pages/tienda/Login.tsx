@@ -6,25 +6,29 @@ import { useAuth } from "../../context/AuthContext";
 import { puede } from "../../utils/permisos";
 
 /**
- * Inicio de sesión. Regla heredada de EP1: la cuenta se bloquea tras 3 intentos
- * fallidos consecutivos. Una vez autenticado, se redirige al panel (admin/vendedor)
- * o a la página desde la que se pidió el login.
+ * Inicio de sesión conectado al backend (POST /auth/login → JWT). Las credenciales se validan contra los
+ * usuarios guardados en la base de datos; la cuenta se bloquea tras 3 intentos fallidos (regla de EP1).
+ * Una vez autenticado, se redirige al panel (admin/vendedor) o a la página desde la que se pidió el login.
  */
 export function Login() {
-  const { usuario, iniciarSesion } = useAuth();
+  const { usuario, iniciarSesion, sesionExpirada } = useAuth();
   const ubicacion = useLocation();
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const [enviando, setEnviando] = useState(false);
 
   if (usuario !== null) {
     const desde = (ubicacion.state as { desde?: string } | null)?.desde;
     return <Navigate to={desde ?? (puede(usuario.rol, "panel:acceder") ? "/admin" : "/")} replace />;
   }
 
-  function alEnviar(e: React.FormEvent) {
+  async function alEnviar(e: React.FormEvent) {
     e.preventDefault();
-    const resultado = iniciarSesion(correo, password);
+    setMensaje("");
+    setEnviando(true);
+    const resultado = await iniciarSesion(correo, password);
+    setEnviando(false);
     if (!resultado.ok) setMensaje(resultado.mensaje);
   }
 
@@ -36,12 +40,13 @@ export function Login() {
             <span className="badge text-bg-secondary mb-3">Acceso</span>
             <h1 className="fw-bold h2">Inicia sesión</h1>
           </section>
+          {sesionExpirada && <Alerta tipo="warning">Tu sesión expiró. Inicia sesión nuevamente para continuar.</Alerta>}
           <section className="card shadow-sm border-0">
             <div className="card-body p-4 p-md-5">
               <form onSubmit={alEnviar} noValidate>
                 <div className="mb-3"><CampoInput id="correoLogin" tipo="email" etiqueta="Correo electrónico" valor={correo} onCambio={setCorreo} /></div>
                 <div className="mb-3"><CampoInput id="passwordLogin" tipo="password" etiqueta="Contraseña" valor={password} onCambio={setPassword} /></div>
-                <div className="d-grid mt-4"><button type="submit" className="btn btn-primary btn-lg">Iniciar sesión</button></div>
+                <div className="d-grid mt-4"><button type="submit" className="btn btn-primary btn-lg" disabled={enviando}>{enviando ? "Ingresando…" : "Iniciar sesión"}</button></div>
               </form>
               {mensaje && <Alerta tipo="danger" className="mt-4 mb-0">{mensaje}</Alerta>}
               <p className="text-center mt-4 mb-0">¿Aún no tienes cuenta? <Link to="/registro">Regístrate aquí</Link></p>

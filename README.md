@@ -1,25 +1,23 @@
-# 🐾 Vet San Marcos — Evaluación Parcial 2 (DSY1104)
+# 🐾 Vet San Marcos — Frontend (Evaluación Parcial 3, DSY1104)
 
-Tienda online veterinaria **migrada de HTML/CSS/JS (EP1) a React + TypeScript + Vite + Bootstrap 5**, ampliada con
-roles de usuario (administrador, vendedor, cliente), panel de gestión, perfil personal, checkout con boleta y reportes.
-Proyecto 100 % frontend: la persistencia se simula con **LocalStorage** (no es un sistema de seguridad de producción).
+Tienda veterinaria en **React 19 + TypeScript + Vite + Bootstrap 5**, conectada por **API REST** al backend
+Spring Boot ([`VetSanMarcos_BACKEND`](https://github.com/ariecatalan-byte/VetSanMarcos_BACKEND)).
+La aplicación obtiene usuarios, productos, categorías y compras de la API REST y la base de datos del backend. No usa `localStorage`: los tokens y el carrito viven solo en memoria.
 
 **Equipo:** Ariel Catalán · Vinc González — Duoc UC, 2026.
 
 ## Cómo ejecutarlo
 
-Requiere Node.js 18 o superior.
+Requiere Node.js 18+ y el backend corriendo (ver su README; por defecto en `http://localhost:8080`).
 
 ```bash
 npm install
-npm run dev        # desarrollo → http://localhost:5173
-npm run build      # compila TypeScript y genera /dist
-npm run preview    # sirve /dist
+cp .env.example .env     # solo si el backend NO está en http://localhost:8080/api/v1
+npm run dev              # → http://localhost:5173
+npm run build            # tsc + vite build
 ```
 
-La app usa rutas con `#` (HashRouter), por lo que `dist/` funciona en cualquier hosting estático (p. ej. GitHub Pages).
-
-## Cuentas de prueba
+## Cuentas de prueba (las crea el backend al iniciar con la BD vacía)
 
 | Rol | Correo | Contraseña |
 |---|---|---|
@@ -27,60 +25,43 @@ La app usa rutas con `#` (HashRouter), por lo que `dist/` funciona en cualquier 
 | Vendedor | vendedor@duoc.cl | Vendedor1234 |
 | Cliente | cliente@duoc.cl | Cliente1234 |
 
-Para volver a los datos iniciales: DevTools → Application → Local Storage → borrar las claves `vsm_v2_*`.
+## Qué cambió en EP3
 
-## Roles y permisos (`src/utils/permisos.ts`)
-
-| Operación | Administrador | Vendedor | Cliente |
-|---|:-:|:-:|:-:|
-| Navegar, comprar, editar su perfil | ✅ | ✅ | ✅ |
-| Panel de gestión | ✅ | ✅ | ❌ |
-| Consultar productos / modificar stock | ✅ | ✅ | ❌ |
-| Crear / editar / eliminar productos | ✅ | ❌ | ❌ |
-| CRUD de categorías | ✅ | ❌ | ❌ |
-| CRUD de usuarios y asignar roles | ✅ | ❌ | ❌ |
-| Crear usuarios | cualquier rol | solo **cliente** | ❌ |
-| Órdenes/boletas y reportes | ✅ | ❌ | ❌ |
-
-El registro público siempre crea **clientes**. Nadie puede cambiar su propio rol. La matriz se aplica en tres niveles:
-menú (qué se muestra), rutas (`RutaProtegida`) y contextos (rechazan la operación aunque la UI se manipule).
+| Tema | Implementación |
+|---|---|
+| React 19 | `react@19`, `@types/react@19` |
+| Persistencia | Productos, categorías, usuarios y compras se consultan y modifican mediante la API (`src/api/`). El carrito es temporal y vive en memoria; no se usa `localStorage` |
+| Cliente HTTP | `src/api/cliente.ts` (Axios): adjunta el JWT, renueva tokens en memoria una vez ante un 401 y convierte errores de red/servidor en mensajes |
+| Sesión | `AuthContext`: login/registro/logout contra `/auth/*`; ambos tokens viven solo en memoria. Al recargar se inicia como invitado y hay que volver a iniciar sesión |
+| Rutas protegidas | `RutaProtegida` redirige a `/login` si no hay sesión y muestra "acceso denegado" según rol. Checkout, boletas y perfil exigen sesión |
+| Permisos en la UI | `utils/permisos.ts` oculta menús y botones; **el backend vuelve a validar** cada endpoint |
+| Compra | `POST /ordenes`: el servidor recalcula precios y valida stock; queda asociada al usuario autenticado |
+| Historial | `Perfil` → `GET /ordenes/mis` (solo las del usuario). Admin: `GET /ordenes` y por usuario |
+| Estados de orden | Admin: pagada → enviada → entregada / cancelada (devuelve stock) en la boleta |
+| Reportes | `GET /reportes/resumen?periodo=semana\|mes\|anio\|todo`: tarjetas, gráfico de barras, tabla de más vendidos, ventas por categoría |
+| Errores | `EstadoCarga` (spinner / error + "Reintentar"), banner global si el backend no responde, mensajes de éxito/error en cada formulario |
 
 ## Estructura
 
 ```
 src/
 ├── main.tsx · App.tsx           Entrada, providers y mapa de rutas
-├── types/                       Interfaces y tipos (Usuario, Producto, Orden, Rol...)
-├── data/                        "Archivo de datos": CRUD sobre LocalStorage
-│   ├── storage.ts · seed.ts     Acceso genérico + datos iniciales
-│   └── productosRepo · categoriasRepo · usuariosRepo · ordenesRepo · carritoRepo
-├── context/                     Estado global: AuthContext, DatosContext, CarritoContext
-├── hooks/useFormulario.ts       Inputs controlados + validación en tiempo real
-├── utils/                       permisos, validaciones, formato, filtros
-├── components/
-│   ├── comunes/                 Campos de formulario, Alerta, Avatar, Insignias...
-│   ├── layout/                  Navbar, Footer, LayoutTienda, LayoutAdmin, RutaProtegida
-│   ├── productos/ carrito/ ordenes/ admin/ secciones/
-│   └── formularios/             FormUsuario (4 modos), FormProducto, FormCategoria, FormContacto
-└── pages/
-    ├── tienda/                  Home, Productos, Detalle, Categorías, Ofertas, Blog, Carrito,
-    │                            Checkout, Compra exitosa / Pago con error, Login, Registro, Perfil
-    └── admin/                   Dashboard, Órdenes, Productos, Críticos, Categorías, Usuarios, Reportes
+├── config.ts                    URL de la API (VITE_API_URL)
+├── api/                         cliente.ts (Axios + JWT) · auth · catalogo · usuarios · ordenes (+reportes)
+├── types/                       Interfaces y tipos (Usuario, Producto, Orden, ReporteResumen...)
+├── context/                     AuthContext (sesión) · DatosContext (catálogo) · CarritoContext
+├── hooks/                       useFormulario (validación) · useCarga (peticiones a la API)
+├── utils/                       permisos, validaciones, formato, filtros, estados de orden
+├── components/                  comunes · layout · formularios · productos · ordenes · admin
+└── pages/                       tienda/ (públicas y de cliente) · admin/ (panel)
 ```
 
-## Reglas de negocio heredadas de EP1 (se conservan)
+## Seguridad (resumen)
 
-- Registro: edad mínima 14 años, correo `@duoc.cl`, contraseña ≥ 8 con letras y números, región/comuna dinámicas, condiciones.
-- Login: bloqueo de la cuenta tras 3 intentos fallidos (el administrador puede desbloquear).
-- Catálogo: filtros combinables (categoría, precio máximo, búsqueda) sin recargar.
-- Carrito: no duplica productos, no supera el stock, descuenta stock al comprar.
-- Contacto: validaciones de nombre, correo (dominios permitidos) y mensaje.
+- Contraseñas: nunca se guardan en el navegador; solo viajan al backend, que las almacena con BCrypt.
+- Los tokens no se persisten en el navegador; un 401 intenta renovar la sesión activa una sola vez y, si falla, se cierra la sesión.
+- `.env` está en `.gitignore`; no hay secretos en el frontend.
 
-## Novedades de EP2
+## Pruebas
 
-Categorías y Ofertas · Checkout (datos + dirección) · Compra exitosa / Pago con error con boleta imprimible ·
-Detalle de producto con descuento · Blog · Panel con dashboard, órdenes, productos críticos, usuarios, historial de compras y reportes ·
-Perfil con avatar, edad derivada y mis compras.
-
-> El pago es una **simulación**: en el checkout se elige si resulta aprobado o rechazado para demostrar ambos flujos.
-> Las pruebas automatizadas no se incluyen porque el instrumento de evaluación del curso indica que no se solicitan.
+Ver [`docs/PRUEBAS_INTEGRACION.md`](docs/PRUEBAS_INTEGRACION.md) (matriz de casos frontend ⇄ backend ⇄ BD).

@@ -3,7 +3,8 @@ import { precioFinal } from "./formato";
 
 export interface FiltrosProductos {
   categoriaId: string; // "todas" = sin filtrar
-  precioMax: number;
+  /** Precio final máximo; null = sin tope (se ajusta solo al máximo del catálogo, aunque este cargue después). */
+  precioMax: number | null;
   texto: string;
 }
 
@@ -12,7 +13,7 @@ export function filtrarProductos(productos: Producto[], filtros: FiltrosProducto
   const texto = filtros.texto.trim().toLowerCase();
   return productos.filter((p) => {
     const coincideCategoria = filtros.categoriaId === "todas" || p.categoriaId === filtros.categoriaId;
-    const coincidePrecio = precioFinal(p) <= filtros.precioMax;
+    const coincidePrecio = filtros.precioMax === null || precioFinal(p) <= filtros.precioMax;
     const coincideTexto = texto === "" || p.nombre.toLowerCase().includes(texto);
     return coincideCategoria && coincidePrecio && coincideTexto;
   });

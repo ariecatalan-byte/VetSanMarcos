@@ -41,7 +41,7 @@ export function LayoutAdmin() {
   );
 
   function salir() {
-    cerrarSesion();
+    void cerrarSesion();
     navegar("/");
   }
 

@@ -1,14 +1,18 @@
 /**
  * pages/tienda/Checkout.tsx — Paso de pago.
- * El cliente indica sus datos y dirección de entrega (si inició sesión, se
- * rellenan automáticamente desde su perfil). El pago es una SIMULACIÓN:
+ * El cliente (con sesión iniciada) indica sus datos y dirección de entrega, que se
+ * rellenan desde su perfil. La compra se registra en la base de datos (POST /ordenes)
+ * asociada al usuario autenticado; el servidor recalcula precios y valida el stock. El pago es una SIMULACIÓN:
  * un select permite elegir si el pago resulta aprobado o rechazado, para
  * poder demostrar las dos vistas del flujo (compra exitosa / pago con error).
  */
 import { useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { mensajeDeError } from "../../api/cliente";
+import { ordenesApi } from "../../api/ordenes";
 import { Alerta } from "../../components/comunes/Alerta";
 import { CampoInput, CampoSelect } from "../../components/comunes/Campos";
+import { EstadoCarga } from "../../components/comunes/EstadoCarga";
 import { EncabezadoPagina } from "../../components/comunes/EncabezadoPagina";
 import { SelectRegionComuna } from "../../components/formularios/SelectRegionComuna";
 import { useAuth } from "../../context/AuthContext";
@@ -21,10 +25,11 @@ import { validarCheckout, type DatosFormCheckout } from "../../utils/validacione
 export function Checkout() {
   const { usuario } = useAuth();
   const { lineas, total, vaciar } = useCarrito();
-  const { procesarCompra } = useDatos();
+  const { recargar, cargando: cargandoCatalogo } = useDatos();
   const navegar = useNavigate();
   const ubicacion = useLocation();
   const [error, setError] = useState("");
+  const [enviando, setEnviando] = useState(false);
 
   // Si venimos de "Volver a realizar el pago" se reutilizan los datos ingresados antes.
   const previos = (ubicacion.state as { datos?: DatosFormCheckout } | null)?.datos;
@@ -42,32 +47,35 @@ export function Checkout() {
   const form = useFormulario<DatosFormCheckout>(inicial, validarCheckout);
   const { valores, cambiar, errorDe } = form;
 
+  if (cargandoCatalogo) return <div className="container py-5"><EstadoCarga cargando error="">{null}</EstadoCarga></div>;
   if (lineas.length === 0) return <Navigate to="/carrito" replace />;
 
-  function alPagar(e: React.FormEvent) {
+  async function alPagar(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     if (!form.intentarEnvio()) return;
 
-    const respuesta = procesarCompra({
-      lineas,
-      cliente: { nombre: valores.nombre.trim(), apellidos: valores.apellidos.trim(), correo: valores.correo.trim() },
-      entrega: {
-        calle: valores.calle.trim(), departamento: valores.departamento.trim(), region: valores.region,
-        comuna: valores.comuna, indicaciones: valores.indicaciones.trim(),
-      },
-      pagoAprobado: valores.resultadoPago === "aprobado",
-    });
-
-    if (!respuesta.ok || respuesta.orden === undefined) {
-      setError(respuesta.mensaje); // p. ej. no hay stock suficiente
-      return;
-    }
-    if (respuesta.orden.estado === "pagada") {
-      vaciar();
-      navegar(`/compra/exitosa/${respuesta.orden.id}`);
-    } else {
-      navegar(`/compra/error/${respuesta.orden.id}`);
+    setEnviando(true);
+    try {
+      const orden = await ordenesApi.crear({
+        lineas: lineas.map((l) => ({ idProducto: l.producto.id, cantidad: l.cantidad })),
+        cliente: { nombre: valores.nombre.trim(), apellidos: valores.apellidos.trim(), correo: valores.correo.trim() },
+        entrega: {
+          calle: valores.calle.trim(), departamento: valores.departamento.trim(), region: valores.region,
+          comuna: valores.comuna, indicaciones: valores.indicaciones.trim(),
+        },
+        pagoAprobado: valores.resultadoPago === "aprobado",
+      });
+      await recargar(); // el stock cambió en la base de datos: se vuelve a pedir el catálogo
+      if (orden.estado === "pagada") {
+        vaciar();
+        navegar(`/compra/exitosa/${orden.id}`);
+      } else {
+        navegar(`/compra/error/${orden.id}`);
+      }
+    } catch (err) {
+      setError(mensajeDeError(err)); // p. ej. no hay stock suficiente, sesión vencida o servidor caído
+      setEnviando(false);
     }
   }
 
@@ -128,7 +136,7 @@ export function Checkout() {
                   onCambio={(v) => cambiar("resultadoPago", v === "rechazado" ? "rechazado" : "aprobado")} />
 
                 {error && <Alerta tipo="danger" className="mt-3">{error}</Alerta>}
-                <button type="submit" className="btn btn-success btn-lg w-100 mt-3">Pagar ahora {formatearCLP(total)}</button>
+                <button type="submit" className="btn btn-success btn-lg w-100 mt-3" disabled={enviando}>{enviando ? "Procesando…" : `Pagar ahora ${formatearCLP(total)}`}</button>
               </div>
             </div>
           </div>

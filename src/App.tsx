@@ -1,12 +1,13 @@
 /**
  * App.tsx — mapa de rutas de toda la aplicación (React Router).
- *  - Tienda pública (LayoutTienda): inicio, productos, categorías, ofertas, nosotros,
- *    blog, contacto, carrito, checkout, resultado de compra, login, registro y perfil.
+ *  - Tienda (LayoutTienda): públicas = inicio, productos (incluye ofertas destacadas), categorías, nosotros, blog,
+ *    contacto, carrito, login y registro. Protegidas (requieren sesión) = checkout, resultado de
+ *    compra y perfil/historial.
  *  - Panel de gestión (/admin, LayoutAdmin): solo administrador y vendedor; cada
  *    página exige además un permiso específico (utils/permisos.ts).
  */
 import type { ReactElement } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { LayoutAdmin } from "./components/layout/LayoutAdmin";
 import { LayoutTienda } from "./components/layout/LayoutTienda";
 import { RutaProtegida } from "./components/layout/RutaProtegida";
@@ -36,7 +37,6 @@ import { Home } from "./pages/tienda/Home";
 import { Login } from "./pages/tienda/Login";
 import { NoEncontrada } from "./pages/tienda/NoEncontrada";
 import { Nosotros } from "./pages/tienda/Nosotros";
-import { Ofertas } from "./pages/tienda/Ofertas";
 import { PagoError } from "./pages/tienda/PagoError";
 import { Perfil } from "./pages/tienda/Perfil";
 import { ProductoDetalle } from "./pages/tienda/ProductoDetalle";
@@ -55,15 +55,15 @@ export default function App() {
         <Route path="productos/:id" element={<ProductoDetalle />} />
         <Route path="categorias" element={<Categorias />} />
         <Route path="categorias/:id" element={<CategoriaDetalle />} />
-        <Route path="ofertas" element={<Ofertas />} />
+        <Route path="ofertas" element={<Navigate to="/productos?seccion=ofertas" replace />} />
         <Route path="nosotros" element={<Nosotros />} />
         <Route path="blog" element={<Blog />} />
         <Route path="blog/:slug" element={<BlogDetalle />} />
         <Route path="contacto" element={<Contacto />} />
         <Route path="carrito" element={<Carrito />} />
-        <Route path="checkout" element={<Checkout />} />
-        <Route path="compra/exitosa/:id" element={<CompraExitosa />} />
-        <Route path="compra/error/:id" element={<PagoError />} />
+        <Route path="checkout" element={<RutaProtegida><Checkout /></RutaProtegida>} />
+        <Route path="compra/exitosa/:id" element={<RutaProtegida><CompraExitosa /></RutaProtegida>} />
+        <Route path="compra/error/:id" element={<RutaProtegida><PagoError /></RutaProtegida>} />
         <Route path="login" element={<Login />} />
         <Route path="registro" element={<Registro />} />
         <Route path="perfil" element={<RutaProtegida><Perfil /></RutaProtegida>} />

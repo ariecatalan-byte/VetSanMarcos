@@ -2,12 +2,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { Alerta } from "../../components/comunes/Alerta";
 import { EncabezadoPagina } from "../../components/comunes/EncabezadoPagina";
 import { LineaCarritoFila } from "../../components/carrito/LineaCarritoFila";
+import { useAuth } from "../../context/AuthContext";
 import { useCarrito } from "../../context/CarritoContext";
 import { formatearCLP } from "../../utils/formato";
 
 /** Carrito de compras: lista dinámica de líneas + resumen. "Finalizar compra" lleva al checkout. */
 export function Carrito() {
   const { lineas, totalItems, total, hayProblemasDeStock, vaciar } = useCarrito();
+  const { usuario } = useAuth();
   const navegar = useNavigate();
   const vacio = lineas.length === 0;
 
@@ -44,6 +46,7 @@ export function Carrito() {
                 onClick={() => navegar("/checkout")}>
                 Finalizar compra
               </button>
+              {usuario === null && !vacio && <p className="small text-secondary mt-2 mb-0">Para pagar necesitas iniciar sesión; tu carrito se conserva.</p>}
             </div>
           </div>
         </div>

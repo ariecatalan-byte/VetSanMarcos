@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Alerta } from "../../components/comunes/Alerta";
+import { EstadoCarga } from "../../components/comunes/EstadoCarga";
 import { EncabezadoPagina } from "../../components/comunes/EncabezadoPagina";
 import { FiltrosProductos } from "../../components/productos/FiltrosProductos";
 import { ListaProductos } from "../../components/productos/ListaProductos";
@@ -11,11 +12,13 @@ import { filtrarProductos, type FiltrosProductos as Filtros } from "../../utils/
 /** Vista "Categoría #1": productos de una categoría, con filtro por precio y nombre. */
 export function CategoriaDetalle() {
   const { id = "" } = useParams<{ id: string }>();
-  const { categorias, productos } = useDatos();
+  const { categorias, productos, cargando } = useDatos();
   const categoria = categorias.find((c) => c.id === id);
   const deLaCategoria = productos.filter((p) => p.categoriaId === id);
   const precioMaximo = Math.max(0, ...deLaCategoria.map(precioFinal));
-  const [filtros, setFiltros] = useState<Filtros>({ categoriaId: id, precioMax: precioMaximo, texto: "" });
+  const [filtros, setFiltros] = useState<Filtros>({ categoriaId: id, precioMax: null, texto: "" });
+
+  if (cargando) return <div className="container py-5"><EstadoCarga cargando error="">{null}</EstadoCarga></div>;
 
   if (categoria === undefined) {
     return (

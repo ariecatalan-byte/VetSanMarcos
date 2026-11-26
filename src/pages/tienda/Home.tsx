@@ -19,7 +19,7 @@ export function Home() {
           <p className="lead mb-0">Medicamentos, alimento y accesorios con despacho a todo Chile.</p>
           <div className="d-flex flex-wrap justify-content-center gap-2 mt-3">
             <Link to="/productos" className="btn btn-light btn-lg fw-bold">Ver catálogo completo</Link>
-            <Link to="/ofertas" className="btn btn-outline-light btn-lg fw-bold">Ver ofertas</Link>
+            <Link to="/productos?seccion=ofertas" className="btn btn-outline-light btn-lg fw-bold">Ver ofertas</Link>
           </div>
         </div>
         <h2 className="h4 fw-bold mb-4">Productos destacados</h2>

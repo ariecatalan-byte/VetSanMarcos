@@ -1,16 +1,14 @@
 /**
  * context/CarritoContext.tsx
  * -----------------------------------------------------------------------
- * Carrito de compras. El estado guardado es mínimo (idProducto + cantidad)
- * y se persiste en LocalStorage; los datos del producto (nombre, precio
- * con descuento, stock) se obtienen SIEMPRE del catálogo actual, así el
+ * Carrito de compras mantenido en memoria. Los datos del producto (nombre,
+ * precio con descuento, stock) se obtienen SIEMPRE del catálogo actual, así el
  * carrito nunca queda desactualizado si un administrador cambia un precio.
  * Reglas de EP1 conservadas: no duplica productos, no deja superar el stock.
  * -----------------------------------------------------------------------
  */
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import type { ItemCarrito, LineaCarrito, Resultado } from "../types";
-import { carritoRepo } from "../data/carritoRepo";
 import { precioFinal } from "../utils/formato";
 import { useDatos } from "./DatosContext";
 
@@ -29,12 +27,7 @@ const CarritoContext = createContext<CarritoValor | null>(null);
 
 export function CarritoProvider({ children }: { children: ReactNode }) {
   const { productos } = useDatos();
-  const [items, setItems] = useState<ItemCarrito[]>(() => carritoRepo.obtener());
-
-  // Persistencia: cada vez que cambia el carrito se guarda en LocalStorage.
-  useEffect(() => {
-    carritoRepo.guardar(items);
-  }, [items]);
+  const [items, setItems] = useState<ItemCarrito[]>([]);
 
   // Une cada ítem con su producto actual (si el producto fue eliminado, el ítem se descarta).
   const lineas = useMemo<LineaCarrito[]>(

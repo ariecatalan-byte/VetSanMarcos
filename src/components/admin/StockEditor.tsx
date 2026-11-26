@@ -10,7 +10,7 @@ import { validarStock } from "../../utils/validaciones";
 
 interface Props {
   producto: Producto;
-  onGuardar: (id: string, stock: number) => Resultado;
+  onGuardar: (id: string, stock: number) => Promise<Resultado>;
 }
 
 export function StockEditor({ producto, onGuardar }: Props) {
@@ -19,9 +19,9 @@ export function StockEditor({ producto, onGuardar }: Props) {
   const error = validarStock(valor);
   const sinCambios = valor === String(producto.stock);
 
-  function guardar() {
+  async function guardar() {
     if (error) return;
-    setMensaje(onGuardar(producto.id, Number(valor)));
+    setMensaje(await onGuardar(producto.id, Number(valor)));
     setTimeout(() => setMensaje(null), 2000);
   }
 
