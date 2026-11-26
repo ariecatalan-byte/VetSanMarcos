@@ -20,7 +20,7 @@ export function Registro() {
             <div className="card-body p-4 p-md-5">
               <FormUsuario modo="registro" textoBoton="Crear cuenta"
                 onGuardar={(datos) => registrarCliente(aNuevoUsuario(datos))}
-                onExito={() => setTimeout(() => navegar("/login"), 1500)} />
+                onExito={() => setTimeout(() => navegar("/"), 1500)} />
               <p className="text-center mt-3 mb-0">¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link></p>
             </div>
           </section>

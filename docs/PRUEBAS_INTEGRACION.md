@@ -20,7 +20,7 @@ Las pruebas automatizadas del backend (`mvn test`) cubren los casos marcados con
 | 10 | CRUD productos (admin) | Crear, editar, eliminar un producto | Cambios visibles en la tienda y persisten al recargar | | |
 | 11 | CRUD categorías | Crear/editar/eliminar; intentar borrar una con productos | Mensaje de error 409 al borrar con productos | | |
 | 12 | CRUD usuarios | Crear, editar rol, eliminar (con y sin compras) | Con compras queda "Desactivada" | | |
-| 13 | Sesión solo en memoria | Iniciar sesión y recargar (F5) | La aplicación vuelve a modo invitado; debe iniciar sesión nuevamente y el carrito queda vacío | | |
+| 13 | Persistencia de sesión segura | Iniciar sesión y recargar (F5) | La sesión se restaura desde cookie HttpOnly; el carrito temporal queda vacío | | |
 | 14 | Cierre de sesión | Cerrar sesión | Vuelve a invitado; `/perfil` redirige a login; refresh token revocado | | |
 | 15 | Expiración | Con `JWT_ACCESS_MS=20000` esperar y navegar | El token se renueva solo; con refresh vencido pide login | | |
 | 16 | Compra completa | Agregar al carrito → Checkout → Pagar (aprobado) | Boleta N°, stock descontado en BD | | |

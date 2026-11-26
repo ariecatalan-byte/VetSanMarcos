@@ -4,7 +4,7 @@
  * Contexto de SESIÓN conectado al backend. Expone a toda la app:
  *  - el usuario autenticado (y por lo tanto su rol),
  *  - login / registro / logout contra la API (JWT + refresh token),
- *  - tokens JWT mantenidos solo en memoria durante la sesión actual,
+ *  - access token en memoria y refresh token en cookie HttpOnly,
  *  - aviso cuando la sesión expira y no se pudo renovar,
  *  - edición del perfil propio.
  * La gestión de usuarios del panel (listar, crear, editar...) usa api/usuarios.ts directamente.
@@ -13,14 +13,14 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { NuevoUsuario, Resultado, Usuario } from "../types";
 import { authApi } from "../api/auth";
-import { comoResultado, mensajeDeError, registrarAlExpirarSesion, tokensSesion } from "../api/cliente";
+import { mensajeDeError, registrarAlExpirarSesion, renovarSesion, tokensSesion } from "../api/cliente";
 import { usuariosApi } from "../api/usuarios";
 
 export type DatosPerfil = Omit<NuevoUsuario, "rol" | "password">;
 
 interface AuthValor {
   usuario: Usuario | null;
-  /** Se conserva para que las rutas protegidas puedan mostrar el estado de carga. */
+  /** true mientras se restaura la sesión desde la cookie HttpOnly. */
   cargandoSesion: boolean;
   /** true si la sesión terminó porque el token expiró y no se pudo renovar. */
   sesionExpirada: boolean;
@@ -34,7 +34,7 @@ const AuthContext = createContext<AuthValor | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
-  const cargandoSesion = false;
+  const [cargandoSesion, setCargandoSesion] = useState(true);
   const [sesionExpirada, setSesionExpirada] = useState(false);
 
   // Si la API ya no puede renovar el token (refresh vencido o revocado), se limpia la sesión y se avisa.
@@ -44,7 +44,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUsuario(null);
       setSesionExpirada(true);
     });
-    return () => registrarAlExpirarSesion(null);
+    let vigente = true;
+    void (async () => {
+      try {
+        if (await renovarSesion()) {
+          const actual = await authApi.yo();
+          if (vigente) setUsuario(actual);
+        }
+      } catch {
+        if (vigente) {
+          tokensSesion.limpiar();
+          setUsuario(null);
+        }
+      } finally {
+        if (vigente) setCargandoSesion(false);
+      }
+    })();
+    return () => {
+      vigente = false;
+      registrarAlExpirarSesion(null);
+    };
   }, []);
 
   const iniciarSesion = useCallback(async (correo: string, password: string): Promise<Resultado> => {
@@ -61,20 +80,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const cerrarSesion = useCallback(async () => {
-    const refresh = tokensSesion.obtenerRefresh();
     tokensSesion.limpiar();
     setUsuario(null);
     setSesionExpirada(false);
-    if (refresh !== null) {
-      try { await authApi.cerrarSesion(refresh); } catch { /* si falla la red, igual queda cerrada localmente */ }
-    }
+    try { await authApi.cerrarSesion(); } catch { /* La interfaz se cierra aunque el backend no responda. */ }
   }, []);
 
-  /** Registro público: el backend SIEMPRE crea clientes. No se inicia sesión automáticamente. */
-  const registrarCliente = useCallback(
-    (datos: NuevoUsuario) => comoResultado(() => authApi.registro({ ...datos, rol: "cliente" }), "¡Cuenta creada con éxito! Ya puedes iniciar sesión."),
-    [],
-  );
+  /** El backend crea clientes y entrega una sesión nueva al registrarlos. */
+  const registrarCliente = useCallback(async (datos: NuevoUsuario): Promise<Resultado> => {
+    try {
+      const sesion = await authApi.registro({ ...datos, rol: "cliente" });
+      tokensSesion.guardar(sesion);
+      setSesionExpirada(false);
+      setUsuario(sesion.usuario);
+      return { ok: true, mensaje: "¡Cuenta creada con éxito!" };
+    } catch (error) {
+      return { ok: false, mensaje: mensajeDeError(error) };
+    }
+  }, []);
 
   const actualizarPerfil = useCallback(async (datos: DatosPerfil): Promise<Resultado> => {
     try {

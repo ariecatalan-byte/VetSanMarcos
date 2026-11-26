@@ -2,7 +2,7 @@
 
 Tienda veterinaria en **React 19 + TypeScript + Vite + Bootstrap 5**, conectada por **API REST** al backend
 Spring Boot ([`VetSanMarcos_BACKEND`](https://github.com/ariecatalan-byte/VetSanMarcos_BACKEND)).
-La aplicación obtiene usuarios, productos, categorías y compras de la API REST y la base de datos del backend. No usa `localStorage`: los tokens y el carrito viven solo en memoria.
+La aplicación obtiene usuarios, productos, categorías y compras de la API REST y la base de datos del backend. No usa `localStorage`: el access token y el carrito viven en memoria; el refresh token se mantiene en una cookie `HttpOnly` del backend para restaurar la sesión.
 
 **Equipo:** Ariel Catalán · Vinc González — Duoc UC, 2026.
 
@@ -31,8 +31,8 @@ npm run build            # tsc + vite build
 |---|---|
 | React 19 | `react@19`, `@types/react@19` |
 | Persistencia | Productos, categorías, usuarios y compras se consultan y modifican mediante la API (`src/api/`). El carrito es temporal y vive en memoria; no se usa `localStorage` |
-| Cliente HTTP | `src/api/cliente.ts` (Axios): adjunta el JWT, renueva tokens en memoria una vez ante un 401 y convierte errores de red/servidor en mensajes |
-| Sesión | `AuthContext`: login/registro/logout contra `/auth/*`; ambos tokens viven solo en memoria. Al recargar se inicia como invitado y hay que volver a iniciar sesión |
+| Cliente HTTP | `src/api/cliente.ts` (Axios): adjunta el JWT, renueva el access token con cookie `HttpOnly` ante un 401 y convierte errores de red/servidor en mensajes |
+| Sesión | `AuthContext`: login/registro/logout contra `/auth/*`; access token en memoria y refresh token en cookie `HttpOnly`, `SameSite=Strict`. La sesión válida se restaura al recargar; el registro inicia la sesión |
 | Rutas protegidas | `RutaProtegida` redirige a `/login` si no hay sesión y muestra "acceso denegado" según rol. Checkout, boletas y perfil exigen sesión |
 | Permisos en la UI | `utils/permisos.ts` oculta menús y botones; **el backend vuelve a validar** cada endpoint |
 | Compra | `POST /ordenes`: el servidor recalcula precios y valida stock; queda asociada al usuario autenticado |
@@ -59,7 +59,7 @@ src/
 ## Seguridad (resumen)
 
 - Contraseñas: nunca se guardan en el navegador; solo viajan al backend, que las almacena con BCrypt.
-- Los tokens no se persisten en el navegador; un 401 intenta renovar la sesión activa una sola vez y, si falla, se cierra la sesión.
+- El refresh token no es accesible para JavaScript (`HttpOnly`); un 401 intenta renovar la sesión activa una sola vez y, si falla, se cierra la sesión.
 - `.env` está en `.gitignore`; no hay secretos en el frontend.
 
 ## Pruebas

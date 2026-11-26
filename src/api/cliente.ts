@@ -2,16 +2,17 @@
  * Cliente HTTP único de la aplicación. Centraliza las solicitudes Axios, el JWT,
  * la renovación de sesión y la conversión de errores de la API.
  *
- * Ambos tokens se conservan solo en memoria: cerrar o recargar la página termina
- * la sesión y exige volver a iniciar sesión.
+ * El access token vive en memoria. El refresh token solo lo conoce el backend y
+ * viaja en una cookie HttpOnly, SameSite=Strict.
  */
-import axios, { type AxiosRequestConfig } from "axios";
+import axios from "axios";
 import { API_URL } from "../config";
 import type { Resultado } from "../types";
 
 const cliente = axios.create({
   baseURL: API_URL,
   headers: { Accept: "application/json" },
+  withCredentials: true,
 });
 
 export class ApiError extends Error {
@@ -28,7 +29,6 @@ export class ApiError extends Error {
 /** Respuesta de login / registro / refresh. */
 export interface SesionApi {
   accessToken: string;
-  refreshToken: string;
   tokenType: string;
   expiresIn: number;
   usuario: import("../types").Usuario;
@@ -40,19 +40,15 @@ interface CuerpoError {
 }
 
 let accessToken: string | null = null;
-let refreshToken: string | null = null;
 let alExpirarSesion: (() => void) | null = null;
 let renovacionEnCurso: Promise<boolean> | null = null;
 
 export const tokensSesion = {
-  obtenerRefresh: () => refreshToken,
-  guardar(sesion: Pick<SesionApi, "accessToken" | "refreshToken">) {
+  guardar(sesion: Pick<SesionApi, "accessToken">) {
     accessToken = sesion.accessToken;
-    refreshToken = sesion.refreshToken;
   },
   limpiar() {
     accessToken = null;
-    refreshToken = null;
   },
 };
 
@@ -83,7 +79,7 @@ interface Opciones {
 }
 
 async function ejecutar<T>(ruta: string, { metodo = "GET", cuerpo, auth = true }: Opciones): Promise<T> {
-  const headers: AxiosRequestConfig["headers"] = {};
+  const headers: Record<string, string> = {};
   if (auth && accessToken !== null) headers.Authorization = `Bearer ${accessToken}`;
   try {
     const respuesta = await cliente.request<T>({
@@ -98,15 +94,13 @@ async function ejecutar<T>(ruta: string, { metodo = "GET", cuerpo, auth = true }
   }
 }
 
-/** Renueva el par de tokens una sola vez, compartiendo solicitudes simultáneas. */
+/** Renueva el access token mediante la cookie HttpOnly; comparte renovaciones simultáneas. */
 export function renovarSesion(): Promise<boolean> {
   if (renovacionEnCurso) return renovacionEnCurso;
-  const token = tokensSesion.obtenerRefresh();
-  if (token === null) return Promise.resolve(false);
 
   renovacionEnCurso = (async () => {
     try {
-      const { data } = await cliente.post<SesionApi>("/auth/refresh", { refreshToken: token });
+      const { data } = await cliente.post<SesionApi>("/auth/refresh");
       tokensSesion.guardar(data);
       return true;
     } catch (error) {
@@ -124,7 +118,7 @@ export async function solicitar<T>(ruta: string, opciones: Opciones = {}): Promi
   try {
     return await ejecutar<T>(ruta, opciones);
   } catch (error) {
-    if (!(error instanceof ApiError) || error.status !== 401 || opciones.auth === false || tokensSesion.obtenerRefresh() === null) {
+    if (!(error instanceof ApiError) || error.status !== 401 || opciones.auth === false) {
       throw error;
     }
 

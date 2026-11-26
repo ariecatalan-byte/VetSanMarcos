@@ -8,7 +8,7 @@ export const aCuerpoUsuario = (d: Partial<NuevoUsuario>) => ({ ...d });
 export const authApi = {
   login: (correo: string, password: string) => http.post<SesionApi>("/auth/login", { correo, password }, false),
   registro: (datos: NuevoUsuario) => http.post<SesionApi>("/auth/register", aCuerpoUsuario(datos), false),
-  refrescar: (refreshToken: string) => http.post<SesionApi>("/auth/refresh", { refreshToken }, false),
-  cerrarSesion: (refreshToken: string) => http.post<void>("/auth/logout", { refreshToken }, false),
+  refrescar: () => http.post<SesionApi>("/auth/refresh", undefined, false),
+  cerrarSesion: () => http.post<void>("/auth/logout", undefined, false),
   yo: () => http.get<Usuario>("/auth/me"),
 };
